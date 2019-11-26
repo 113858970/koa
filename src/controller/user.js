@@ -3,14 +3,16 @@
  * @author ad
  */
 
-const { getUserInfo, createUser, deleteUser } = require('../services/user')
+const { getUserInfo, createUser, deleteUser, updatUser } = require('../services/user')
 const { SuccessModel, ErrorModel } = require('../model/ResModel')
 const {
     registerUserNameNotExistInfo,
     registerUserNameExistInfo,
     registerFailInfo,
     loginFailInfo,
-    deleteUserFailInfo
+    deleteUserFailInfo,
+    changeInfoFailInfo,
+    changePasswordFailInfo
 } = require('../model/ErrorInfo')
 const doCrypto = require('../utils/cryp')
 
@@ -90,9 +92,61 @@ async function deleteCurUser(userName) {
     return new ErrorModel(deleteUserFailInfo)
 }
 
+//修改用户信息
+async function changeInfo(ctx, {nickName, city, picture}) {
+    const { userName } = ctx.session.userInfo
+    if (!nickName) {
+        nickName = userName
+    }
+    const result = await updatUser({
+        newNickName:nickName,
+        newPicture:picture,
+        newCity:city
+    }
+    ,{
+        userName
+    })
+    if (result) {
+        // 成功
+        Object.assign(ctx.session.userInfo,{
+            nickName,
+            picture,
+            city
+        })
+        return new SuccessModel()
+    }
+    // 失败
+    return new ErrorModel(changeInfoFailInfo)
+}
+
+//修改密码
+async function changePassword(userName, password, newPassword) {
+    const result = await updatUser({
+        newPassord:doCrypto(newPassword)
+    },{
+       userName,
+       password:doCrypto(password)
+    })
+    if (result) {
+        // 成功
+        return new SuccessModel()
+        // 失败
+        return new ErrorModel(changePasswordFailInfo)
+    }
+}
+
+//退出登录
+async function logout(ctx) {
+    delete ctx.session.userInfo
+    return new SuccessModel()
+}
+
 module.exports = {
     isExist,
     register,
     login,
-    deleteCurUser
+    deleteCurUser,
+    changeInfo,
+    changePassword,
+    logout
 }
