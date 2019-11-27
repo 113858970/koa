@@ -4,7 +4,7 @@
  */
 
 const { DEFAULT_PICTURE } = require('../conf/constant')
-
+const { timeFormat } = require('../utils/dt.js')
 /**
  * 用户默认头像
  * @param {Object} obj 用户对象
@@ -34,6 +34,29 @@ function formatUser(list) {
     return _formatUserPicture(list)
 }
 
+//格式化时间函数
+function _formatDBTime(obj){
+    obj.createdAtFormat = timeFormat(obj.createdAt)
+    obj.updatedAtFormat = timeFormat(obj.updatedAt)
+    return obj
+}
+
+function formatBlog(list){
+    //return (list)
+
+    if (list == null) {
+        return list
+    }
+
+    if (list instanceof Array) {
+        // 数组
+        return list.map(_formatDBTime)
+    }
+    // 单个对象
+    return _formatDBTime(list)
+}
+
 module.exports = {
-    formatUser
+    formatUser,
+    formatBlog
 }

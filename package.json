@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "ajv": "^6.10.2",
+    "date-fns": "^2.8.1",
     "debug": "^4.1.1",
     "ejs": "~2.3.3",
     "formidable-upload-koa": "^1.0.1",
